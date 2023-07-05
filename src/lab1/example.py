@@ -9,7 +9,7 @@
 import time
 import numpy as np
 from coppeliasim_zmqremoteapi_client import RemoteAPIClient
-
+from forward_kinetics.RoboticArm_sym import RoboticArm
 
 print('Program started')
 
