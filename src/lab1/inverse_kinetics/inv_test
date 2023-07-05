@@ -1,0 +1,84 @@
+import numpy as np
+
+class RoboticArm:
+    def __init__(self):
+        
+        self.joint_num = 7
+        
+        self.a = np.array([0, 0, 0, 400, 400, 0, 0, 0])
+        self.alpha = np.array([0, -np.pi/2, -np.pi/2, 0, 0, np.pi/2, np.pi/2, 0])
+        self.d = np.array([0, 120, 100, 100, 100, 100, 100, 120])
+        self.theta = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        self.offset = np.array([0, np.pi/2, -np.pi/2, 0, np.pi, 0, np.pi/2, 0])
+        
+        self.DH = np.vstack((self.theta[1:], self.d[1:], self.a[:-1], self.alpha[:-1], self.offset[1:])).T
+    
+        self.T_i_ip1 = np.zeros((self.joint_num, 4, 4), dtype=np.float32)
+        
+        self.T_0_7 = np.eye(4)
+        
+        for i in range(self.joint_num):
+            self.T_i_ip1[i] = self.calc_transform_matrix(i)
+            self.T_0_7 = np.matmul(self.T_0_7, self.T_i_ip1[i])
+            
+            # print(self.T_0_7, '\n')
+            
+    def calc_transform_matrix(self, index):
+        """
+        Initialize the transformation matrix from frame i to frame i+1
+        """
+        ct = np.cos(self.theta[index+1] + self.offset[index+1])
+        st = np.sin(self.theta[index+1] + self.offset[index+1])
+        ca = np.cos(self.alpha[index])
+        sa = np.sin(self.alpha[index])
+        a = self.a[index]
+        d = self.d[index+1]
+        
+        T_i_ip1 = np.array([
+            [ct, -st, 0, a], 
+            [st*ca, ct*ca, -sa, -sa*d],
+            [st*sa, ct*sa, ca, ca*d],
+            [0, 0, 0, 1]
+        ])
+        
+        
+        return T_i_ip1
+    
+    def forward_kinetic(self, theta):
+        T = np.eye(4)
+        for i in range(len(theta)):
+            T = np.dot(self.transform_matrix(theta[i], self.DH[i]), T)
+        return T
+    
+    def inverse_kinetics(nx,ny,nz,ox,oy,oz,ax,ay,az,px,py,pz):
+        """
+        Calculate the inverse kinetics of the robotic arm
+        """
+        theta = np.zeros(7)
+        theta[1] = 0
+        T1=px-0.12*ax
+        T2=0.12*ay-py
+        theta[0]=np.arcsin(-0.3/(T1^2+T2^2)^0.5)-np.arctan2(T2,T1)
+        s6=-ax*np.sin(theta[0])+ay*np.cos(theta[0])
+        c6=(1-s6^2)^0.5
+        theta[5]=np.arcsin(s6)
+        c345=-az/c6
+        s345=(1-c345^2)^0.5
+        A1=1/0.4*(-py*np.cos(theta[0])-px*np.sin(theta[0])-0.12*s345*c6+0.1*c345+0.1)
+        B1=1/0.4*(pz-0.12*c345*c6+0.1*s345-0.12)
+        theta[2]=np.arccos((A1^2+B1^2)^0.5/2)-np.arctan2(A1,B1)
+        c34=np.cos(theta[2])-B1
+        theta[3]=np.arccos(c34)-theta[2]
+        theta[4]=np.arccos(c345)-theta[2]-theta[3]
+        theta[6]=np.arcsin(-oz/((s6^2*c345^2)^2+c345^2)^0.5)+np.arctan2(s345,c345*s6)
+        
+        return theta
+
+            
+if __name__ == '__main__':
+    
+    np.set_printoptions(precision=2)
+    
+    robot = RoboticArm()
+    theta=robot.inverse_kinetics(0,0,1,0,1,0,1,0,0,0,0,0)
+    print(theta)
