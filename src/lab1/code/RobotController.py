@@ -3,13 +3,14 @@ from Tool import pos2trans
 from coppeliasim_zmqremoteapi_client import RemoteAPIClient
 
 import numpy as np 
+import time
 
 class RobotController:
     def __init__(self) -> None:
         
         self.robot = RoboticArm()
-        # self.theta = [0, 0, 0, 0, 0, 0, 0]
-        self.theta = [np.pi/4, 0, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4]
+        self.theta = [0, 0, 0, 0, 0, 0, 0]
+        # self.theta = [np.pi/4, 0, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4]
 
         # self.T_W = pos2trans(x=0.650, y=0, z=0.235, alpha=0, beta=0, gamma=0, is_deg=False)
         
@@ -49,10 +50,22 @@ class RobotController:
     
     def set_state(self):
         
-        self.theta = self.robot.inverse_kinetics(self.T_1, self.theta)
-        
+        T = pos2trans(x=0, y=0.3, z=0.001, alpha=np.pi, beta=0, gamma=-np.pi/2, is_deg=False)
+        self.theta = self.robot.inverse_kinetics(T, self.theta)
         for i in range(7):
             self.sim.setJointPosition(self.joints[i], self.theta[i])
+    # def set_traj(self):
+        
+    #     for i in range(100):
+            
+    #         T = pos2trans(x=0, y=0.3, z=0.0015*i, alpha=np.pi, beta=0, gamma=-np.pi/2, is_deg=False)
+        
+    #         self.theta = self.robot.inverse_kinetics(T, self.theta)
+            
+    #         for i in range(7):
+    #             self.sim.setJointPosition(self.joints[i], self.theta[i])
+                
+    #         time.sleep(0.01)
 
     def shut_down(self):
         
@@ -68,7 +81,7 @@ if __name__ == "__main__":
     
     rc = RobotController()
     
-    # rc.set_state()
-    rc.set_init()
+    rc.set_state()
+    # rc.set_init()
     
-    rc.shut_down()
+    # rc.shut_down()
