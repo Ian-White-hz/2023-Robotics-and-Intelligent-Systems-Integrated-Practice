@@ -46,14 +46,14 @@ print(pos2trans(x, y, z, a, b, g, is_deg=False))
 print("Python:")
 print(arm.T_0_7)
 
-# Change the parent
-# sim.setObjectParent(int objectHandle, int parentObjectHandle, bool keepInPlace)
+# # Change the parent
+# # sim.setObjectParent(int objectHandle, int parentObjectHandle, bool keepInPlace)
 
-# Stop simulation
-sim.stopSimulation()
+# # Stop simulation
+# sim.stopSimulation()
 
-# Restore the original idle loop frequency:
-sim.setInt32Param(sim.intparam_idle_fps, defaultIdleFps)
+# # Restore the original idle loop frequency:
+# sim.setInt32Param(sim.intparam_idle_fps, defaultIdleFps)
 
 
 
