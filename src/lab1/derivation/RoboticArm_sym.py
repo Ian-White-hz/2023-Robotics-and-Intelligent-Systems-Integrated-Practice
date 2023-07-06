@@ -22,7 +22,7 @@ class RoboticArm:
             ])
         
         self.offset = sp.Matrix([0, sp.pi/2, -sp.pi/2, 0, sp.pi, 0, sp.pi/2, 0])
-        self.sign = sp.Matrix([1, 1, 1, 1, 1, 1, 1, 1])
+        self.sign = sp.Matrix([1, 1, 1, 1, 1, -1, -1, -1])
         
         
         self.DH = sp.Matrix([self.theta[1:], self.d[1:], self.a[:-1], self.alpha[:-1], self.offset[1:]]).T

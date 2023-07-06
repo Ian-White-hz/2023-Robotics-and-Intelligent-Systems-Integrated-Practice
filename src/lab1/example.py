@@ -5,7 +5,8 @@
 # or on https://github.com/CoppeliaRobotics/zmqRemoteApi
 #
 # You can get more API about coppleliasim on https://coppeliarobotics.com/helpFiles/en/apiFunctions.htm
-
+import sys
+sys.path.append("..")
 import time
 import numpy as np
 from coppeliasim_zmqremoteapi_client import RemoteAPIClient
