@@ -8,16 +8,13 @@ class RobotController:
     def __init__(self) -> None:
         
         self.robot = RoboticArm()
-        self.theta = [0, 0, 0, 0, 0, 0, 0]
-        # self.theta = [np.pi/4, 0, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4]
+        # self.theta = [0, 0, 0, 0, 0, 0, 0]
+        self.theta = [np.pi/4, 0, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4]
 
         # self.T_W = pos2trans(x=0.650, y=0, z=0.235, alpha=0, beta=0, gamma=0, is_deg=False)
         
         self.T_0 = self.robot.forward_kinetic(self.theta)
-        self.T_1 = pos2trans(x=0.3, y=0, z=0, alpha=np.pi, beta=0, gamma=-np.pi/2, is_deg=False)
-        
-        print(self.T_0)
-        print(self.T_1)
+        self.T_1 = pos2trans(x=0, y=0.3, z=0.15, alpha=np.pi, beta=0, gamma=-np.pi/2, is_deg=False)
         
         self.T = self.T_0
         
@@ -71,7 +68,7 @@ if __name__ == "__main__":
     
     rc = RobotController()
     
-    rc.set_state()
-    
+    # rc.set_state()
+    rc.set_init()
     
     rc.shut_down()

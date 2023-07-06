@@ -69,7 +69,7 @@ class RoboticArm:
         
         theta = find_closest_row(results, theta_current)
         
-        print(results, theta, theta_current)
+        # print(results, theta, theta_current)
         
         return theta
         

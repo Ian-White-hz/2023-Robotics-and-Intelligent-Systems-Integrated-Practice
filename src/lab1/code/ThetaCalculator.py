@@ -134,8 +134,8 @@ class ThetaCalculator:
             0.1*(nx*np.cos(theta_1) + ny*np.sin(theta_1))*np.sin(theta_7) + \
             0.1*(sx*np.cos(theta_1) + sy*np.sin(theta_1))*np.cos(theta_7) - 0.1   
         
-        c3 = (2.5*A*(1-np.cos(theta_4)) + 2.5*B*np.sin(theta_4)) / (2 - 2*np.cos(theta_4))
-        s3 = (2.5*A*np.sin(theta_4) - 2.5*B*(1-np.cos(theta_4))) / (2 - 2*np.cos(theta_4))
+        c3 = (2.5*A*(1-np.cos(theta_4)) + 2.5*B*np.sin(theta_4)) 
+        s3 = (2.5*A*np.sin(theta_4) - 2.5*B*(1-np.cos(theta_4))) 
         
         return [norm_rad(np.arctan2(s3, c3))]
     
