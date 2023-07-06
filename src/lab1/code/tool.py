@@ -19,3 +19,9 @@ def pos2trans(x, y, z, alpha, beta, gamma, is_deg=False):
         [-ca*sb*cg+sa*sg, ca*sb*sg+sa*cg, ca*cb, z],
         [0, 0, 0, 1]
     ])
+
+def norm_rad(rad):
+    """
+    Normalize the radian to [0, , 2*pi]
+    """
+    return np.arctan2(np.sin(rad), np.cos(rad))

@@ -1,8 +1,6 @@
 import time
 import numpy as np
 
-
-
 from coppeliasim_zmqremoteapi_client import RemoteAPIClient
 
 from RoboticArm import RoboticArm

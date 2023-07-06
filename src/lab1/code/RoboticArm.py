@@ -1,5 +1,5 @@
 import numpy as np
-from tool import pos2trans
+from Tool import pos2trans
 from ThetaCalculator import ThetaCalculator
 
 class RoboticArm:
@@ -38,7 +38,7 @@ class RoboticArm:
     
     def forward_kinetic(self, theta):
         
-        self.theta = [None] + theta
+        self.theta = [0] + theta
         
         self.T_i_ip1 = np.zeros((self.joint_num, 4, 4), dtype=np.float32)
         
@@ -50,11 +50,26 @@ class RoboticArm:
             
         return self.T_0_7
     
-    def inverse_kinetics(self, T):
+    def inverse_kinetics(self, T_target, theta_current=None):
         """
         Calculate the inverse kinetics of the robotic arm
         """
-        theta = self.tc.calc_theta(T)[0]
+        if theta_current is None:
+            theta_current = np.zeros((1, 7))
+        
+        results = self.tc.calc_theta(T_target)
+        
+        # print(results)
+        
+        def find_closest_row(array, target_row):
+            distances = np.linalg.norm(array - target_row, axis=1)
+            closest_index = np.argmin(distances)
+            closest_row = array[closest_index]
+            return closest_row
+        
+        theta = find_closest_row(results, theta_current)
+        
+        print(results, theta, theta_current)
         
         return theta
         
@@ -66,13 +81,9 @@ if __name__ == '__main__':
     
     robot = RoboticArm()
     
-    robot.forward_kinetic(
-        np.array([None, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4])
-    )
- 
-    print(robot.T_0_7)
+    theta = [np.pi/4, 0, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4]
     
-    print(pos2trans(-0.32962, 0.03766, 0.07544, 81.301, 14.478, -163.171, is_deg=True))
-    
-    robot.inverse_kinetics(-0.32962, 0.02766, 0.07544, 81.301, 14.478, -163.171)
-    
+    T = robot.forward_kinetic(theta)
+
+    theta = robot.inverse_kinetics(T, theta)
+    print(theta)
