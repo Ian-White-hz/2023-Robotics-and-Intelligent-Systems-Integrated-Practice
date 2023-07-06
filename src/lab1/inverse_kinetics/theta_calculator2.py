@@ -60,14 +60,14 @@ def cal_theta1(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz):
     return theta1
 
 
-def cal_theta6(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta1):
+def cal_theta6(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta1, theta2):
     """
     Calculate theta6
     """
     theta6 = []
     s6 = -ax*np.sin(theta1)+ay*np.cos(theta1)
-    theta6.append(np.arcsin(s6))
-    theta6.append(np.pi-np.arcsin(s6))
+    theta6.append(sp.asin(lhs2).subs(sp.Symbol('theta_2'), theta2).subs(sp.Symbol('theta_1'), theta1))
+    theta6.append(-sp.asin(lhs2).subs(sp.Symbol('theta_2'), theta2).subs(sp.Symbol('theta_1'), theta1))
     return theta6
 
 def cal_theta5(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta1, theta3, theta4, theta6):
@@ -83,16 +83,12 @@ def cal_theta5(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta1, theta3, t
     theta5 = np.arccos(c345)-theta3-theta4
     return theta5
 
-def cal_theta7(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta1, theta6):
+def cal_theta7(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta1, theta2):
     """
     Calculate theta7
     """
-    s6 = -ax*np.sin(theta1)+ay*np.cos(theta1)
-    c6 = np.cos(theta6)
-    c345 = -az / c6
-    s345 = (1-c345 ** 2) ** 0.5
     theta7 = []
-    theta7.append(np.arcsin(-oz/((s6 ** 2*c345 ** 2) ** 2+c345 ** 2) ** 0.5)+np.arctan2(s345,c345*s6))
+    theta7.append(sp.atan2(lhs3, lhs1).subs(sp.Symbol('theta_2'), theta2).subs(sp.Symbol('theta_1'), theta1))
     return theta7
 
 def cal_theta3(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz,theta1, theta6):
@@ -118,7 +114,7 @@ def cal_theta4(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta1, theta3, t
     s6 = -ax*np.sin(theta1)+ay*np.cos(theta1)
     c6 = np.cos(theta6)
     c345 = -az / c6
-    s345 = (1-c345 ** 2) ** 0.5
+    s345 = (1 - c345 ** 2) ** 0.5
     A1 = 1/0.4*(-py*np.cos(theta1)-px*np.sin(theta1)-0.12*s345*c6+0.1*c345+0.1)
     B1 = 1/0.4*(pz-0.12*c345*c6+0.1*s345-0.12)
     c34=np.cos(theta3)-B1
