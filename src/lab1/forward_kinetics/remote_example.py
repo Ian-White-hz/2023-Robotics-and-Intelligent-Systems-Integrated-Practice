@@ -50,7 +50,7 @@ print(arm.T_0_7)
 # sim.setObjectParent(int objectHandle, int parentObjectHandle, bool keepInPlace)
 
 # Stop simulation
-sim.stopSimulation()
+#sim.stopSimulation()
 
 # Restore the original idle loop frequency:
 sim.setInt32Param(sim.intparam_idle_fps, defaultIdleFps)

@@ -1,5 +1,5 @@
 import numpy as np
-from theta_calculator import cal_theta1, cal_theta6, cal_theta3, cal_theta4, cal_theta5, cal_theta7
+from theta_calculator2 import cal_theta1, cal_theta2, cal_theta3, cal_theta4, cal_theta5, cal_theta7, cal_theta6
 
 class RoboticArm:
     def __init__(self):
@@ -52,11 +52,27 @@ class RoboticArm:
         return T
     
     def cal_theta(self, nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz):
+        # num = 0
+        # solutions = []
+        # theta_2 = 0
+        # theta1s = cal_theta1(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz)
+        # for theta_1 in theta1s:
+        #     theta6s = cal_theta6(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1)
+        #     for theta_6 in theta6s:
+        #         theta3s = cal_theta3(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1, theta_6)
+        #         theta_7 = cal_theta7(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1, theta_6)
+        #         for theta_3 in theta3s:
+        #             theta_4 = cal_theta4(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1, theta_3, theta_6)
+        #             theta_5 = cal_theta5(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1, theta_3, theta_4, theta_6)
+        #             print(f'Solution {num}, theta_1: {theta_1}, theta_2: {theta_2}, theta_3: {theta_3}, theta_4: {theta_4}, theta_5: {theta_5}, theta_6: {theta_6}, theta_7: {theta_7}')
+        #             solutions.append([theta_1, theta_2, theta_3, theta_4, theta_5, theta_6])
+        #             num += 1
+        # return solutions
         num = 0
         solutions = []
-        theta_2 = 0
-        theta1s = cal_theta1(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz)
-        for theta_1 in theta1s:
+        theta_1 = 0
+        theta2s = cal_theta2(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz ,theta_1)
+        for theta_2 in theta2s:
             theta6s = cal_theta6(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1)
             for theta_6 in theta6s:
                 theta3s = cal_theta3(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1, theta_6)
@@ -64,7 +80,7 @@ class RoboticArm:
                 for theta_3 in theta3s:
                     theta_4 = cal_theta4(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1, theta_3, theta_6)
                     theta_5 = cal_theta5(nx, ny, nz, ox, oy, oz, ax, ay, az, px, py, pz, theta_1, theta_3, theta_4, theta_6)
-                    print(f'Solution {num}, theta_1: {theta_1}, theta_2: {theta_2}, theta_3: {theta_3}, theta_4: {theta_4}, theta_5: {theta_5}, theta_6: {theta_6}')
+                    print(f'Solution {num}, theta_1: {theta_1}, theta_2: {theta_2}, theta_3: {theta_3}, theta_4: {theta_4}, theta_5: {theta_5}, theta_6: {theta_6}, theta_7: {theta_7}')
                     solutions.append([theta_1, theta_2, theta_3, theta_4, theta_5, theta_6])
                     num += 1
         return solutions
@@ -120,4 +136,7 @@ if __name__ == '__main__':
     np.set_printoptions(precision=2)
     
     robot = RoboticArm()
-    theta=robot.inverse_kinetics(1,0,0,0,1,0,0,0,1,1,0,0)
+    #theta=robot.inverse_kinetics(-0.9267767,-0.28033009,-0.25,0.28033009,-0.07322332,-0.95710678,0.24999999,-0.95710678 ,0.14644663 ,-0.32961941,0.03765981,0.07544156)
+    theta_2=cal_theta2(-0.9267767,-0.28033009,-0.25,0.28033009,-0.07322332,-0.95710678,0.24999999,-0.95710678 ,0.14644663 ,-0.32961941,0.03765981,0.07544156, np.pi/4)
+    print(theta_2)
+
