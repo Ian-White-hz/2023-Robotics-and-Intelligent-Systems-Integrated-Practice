@@ -25,10 +25,7 @@
       │  │  ├─ inv_test.py
       │  │  ├─ theta_calculator.py
       │  │  ├─ theta_calculator2.py
-      │  │  ├─ __init__.py
-      │  │  └─ __pycache__
-      │  │     ├─ theta_calculator.cpython-310.pyc
-      │  │     └─ theta_calculator2.cpython-310.pyc
+      │  │  └─ __init__.py
       │  └─ RoboticArm_sym.py
       ├─ example.py
       ├─ img
