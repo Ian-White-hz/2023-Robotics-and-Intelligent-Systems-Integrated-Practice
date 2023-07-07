@@ -54,6 +54,8 @@ class RobotController:
         self.links.append(self.sim.getObject('./R_Link1'))
         self.links.append(self.sim.getObject('./R_Base'))
 
+        self.offset = [0, 0, 0, 0, 0, 0, 0]
+
     def set_init(self):
 
         self.theta = [0, 0, 0, 0, 0, 0, 0]
@@ -61,49 +63,71 @@ class RobotController:
         for i in range(7):
             self.sim.setJointPosition(self.joints[i], self.theta[i])
 
-    def set_state1(self):
-
-        T = pos2trans(x=0, y=0.6, z=0, alpha=np.pi,
-                      beta=0, gamma=-np.pi/2, is_deg=False)
-
-        self.theta = self.robot.inverse_kinetics(T, self.theta)
+    def reverse_list(self):
         self.joints.reverse()
         self.links.reverse()
 
-        for i in range(6):
-            self.sim.setJointPosition(self.joints[i], self.theta[i])
-        self.sim.setJointPosition(self.joints[6], self.theta[6]+np.pi)
+    def get_offset(self):
+        for i in range(7):
+            self.offset[i] += self.sim.getJointPosition(self.joints[i])
 
-        self.joints.reverse()
-        self.links.reverse()
+    # def set_state1(self):
+    #     self.reverse()
+    #     T = pos2trans(x=0, y=0.6, z=0, alpha=np.pi,
+    #                   beta=0, gamma=-np.pi/2, is_deg=False)
+
+    #     self.theta = self.robot.inverse_kinetics(T, self.theta)
+
+    #     for i in range(6):
+    #         self.sim.setJointPosition(self.joints[i], self.theta[i])
+    #     self.sim.setJointPosition(self.joints[6], self.theta[6]+np.pi)
+    #     self.reverse()
 
     def set_state2(self):
-
-        T = pos2trans(x=0, y=0.3, z=0, alpha=np.pi,
-                      beta=0, gamma=-np.pi/2, is_deg=False)
-
+        """
+        ideal: [ 3.51e-01  0.00e+00  8.77e-01 -1.23e+00 -1.92e+00 -3.51e-01  6.12e-17]
+        """
+        print('-----------------------------------')
+        print('state2')
+        print('-----------------------------------')
+        # self.reverse_list()
+        T = pos2trans(x=0.1, y=0.4, z=-0.1, alpha=np.pi/2,
+                      beta=-np.pi/2, gamma=np.pi, is_deg=False)
         self.theta = self.robot.inverse_kinetics(T, self.theta)
+        T_new = change_base(T)
+        # self.theta = self.robot.inverse_kinetics(T_new, self.theta)
 
-        self.joints.reverse()
-        self.links.reverse()
+        self.theta_new = [self.theta[i]-self.offset[i] for i in range(7)]
 
         for i in range(6):
-            self.sim.setJointPosition(self.joints[i], self.theta[i])
-        self.sim.setJointPosition(self.joints[6], self.theta[6])
+            self.sim.setJointPosition(self.joints[i], self.theta_new[i])
+        self.sim.setJointPosition(self.joints[6], self.theta_new[6])
+        # self.reverse_list()
 
-        self.joints.reverse()
-        self.links.reverse()
-
-    def set_state(self):
-
+    def set_state1(self):
+        print('-----------------------------------')
+        print('state1')
+        print('-----------------------------------')
+        self.reverse_list()
         T = pos2trans(x=0, y=0.6, z=0, alpha=np.pi,
                       beta=0, gamma=-np.pi/2, is_deg=False)
         self.theta = self.robot.inverse_kinetics(T, self.theta)
         T_new = change_base(T)
         self.theta = self.robot.inverse_kinetics(T_new, self.theta)
+        self.theta = [self.theta[i]-self.offset[i] for i in range(7)]
         for i in range(6):
             self.sim.setJointPosition(self.joints[i], self.theta[i])
-        self.sim.setJointPosition(self.joints[6], self.theta[6])
+        self.sim.setJointPosition(self.joints[6], self.theta[6]-np.pi/2)
+        self.reverse_list()
+
+    def reverse_kinetics(self):
+        self.get_offset()
+        self.reverse_list()
+        self.sim.setObjectParent(self.links[0], -1, True)
+        for i in range(7):
+            self.sim.setObjectParent(self.joints[i], self.links[i], True)
+            self.sim.setObjectParent(self.links[i+1], self.joints[i], True)
+
     # def set_traj(self):
 
     #     for i in range(100):
@@ -116,13 +140,6 @@ class RobotController:
     #             self.sim.setJointPosition(self.joints[i], self.theta[i])
 
     #         time.sleep(0.01)
-    def reverse_kinetics(self):
-        self.joints.reverse()
-        self.links.reverse()
-        self.sim.setObjectParent(self.links[0], -1, True)
-        for i in range(7):
-            self.sim.setObjectParent(self.joints[i], self.links[i], True)
-            self.sim.setObjectParent(self.links[i+1], self.joints[i], True)
 
     def shut_down(self):
 
@@ -139,15 +156,14 @@ if __name__ == "__main__":
 
     rc = RobotController()
 
-    # rc.reverse_kinetics()
-
-    # rc.set_state1()
-
-    # rc.reverse_kinetics()
-
     # rc.set_state2()
+    rc.reverse_kinetics()
 
-    rc.set_state3()
+    rc.set_state1()
+
+    rc.reverse_kinetics()
+
+    rc.set_state2()
 
     # rc.set_init()
 
