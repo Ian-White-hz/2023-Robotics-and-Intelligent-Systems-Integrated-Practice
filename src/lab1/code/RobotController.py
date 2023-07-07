@@ -105,6 +105,36 @@ class RobotController:
         """
         for i in range(7):
             self.sim.setJointPosition(self.joints[i], self.theta[i] + self.offset[i])
+    
+    def set_traj_theta(self, pose_start, pose_end, T, resolution=100):
+        
+        x, y, z, alpha, beta, gamma = pose_start
+        T_start = pos2trans(x, y, z, alpha, beta, gamma)
+        x, y, z, alpha, beta, gamma = pose_end
+        T_end = pos2trans(x, y, z, alpha, beta, gamma)
+        
+        if self.reverse:
+            self.reverse_list()
+            T_start = change_base(T_start)
+            T_end = change_base(T_end)
+        
+        theta_start = self.robot.inverse_kinetics(T_start, [i - j for i, j in zip(self.theta, self.offset)])
+        theta_end = self.robot.inverse_kinetics(T_end, [i - j for i, j in zip(self.theta, self.offset)])
+        
+        def theta_t(theta_start, theta_end, t, T):
+            """
+            linear function
+            """
+            return theta_start*(1-t/T) + theta_end*t/T
+        
+        for t in np.linspace(0, T, resolution):
+
+            self.theta = theta_t(theta_start, theta_end, t, T)
+            self.set_theta()
+            time.sleep(T/resolution)
+        
+        if self.reverse:
+            self.reverse_list()
 
     def reverse_kinetics(self):
         self.get_offset()
@@ -115,18 +145,11 @@ class RobotController:
             self.sim.setObjectParent(self.links[i+1], self.joints[i], True)
         self.reverse = not self.reverse
     
-    # def set_traj(self):
-
-    #     for i in range(100):
-
-    #         T = pos2trans(x=0, y=0.3, z=0.0015*i, alpha=np.pi, beta=0, gamma=-np.pi/2, is_deg=False)
-
-    #         self.theta = self.robot.inverse_kinetics(T, self.theta)
-
-    #         for i in range(7):
-    #             self.sim.setJointPosition(self.joints[i], self.theta[i])
-
-    #         time.sleep(0.01)
+    def set_traj_line(self, pose_start, pose_end):
+        return
+    
+    def set_traj_theta_circle(self, pose_start, pose_end):
+        return
 
     def shut_down(self):
 
@@ -146,41 +169,17 @@ if __name__ == "__main__":
     rc.set_init()
     
     rc.reverse_kinetics()
-
-    rc.set_pose((-0.3, 0, 0, np.pi, 0, np.pi/2))
     
-    for k in np.linspace(0, 1, 100):
-        rc.set_pose((-0.3, 0, -0.05*k, np.pi, 0, np.pi/2))
-        time.sleep(0.001)
-    rc.set_pose((-0.3, 0, -0.05, np.pi, 0, np.pi/2))
+    # rc.set_traj_theta((-0.3, 0, -0.05, np.pi, 0, np.pi/2), (0.6, 0, -0.05, np.pi, 0, -np.pi/2), 1)
     
-    for k in np.linspace(0, 1, 100):
-        rc.set_pose((-0.3, 0.3*k, -0.05*k, np.pi, 0, np.pi/2))
-        time.sleep(0.001)
-    rc.set_pose((-0.3, 0.3, -0.05, np.pi, 0, np.pi/2))
-    
-    for k in np.linspace(0, 1, 100):
-        rc.set_pose((-0.3+0.9*k, 0.3, -0.05*k, np.pi, 0, np.pi/2))
-        time.sleep(0.001)
-    rc.set_pose((-0.6, 0.3, -0.05, np.pi, 0, np.pi/2))
-    
-    for k in np.linspace(0, 1, 100):
-        rc.set_pose((0.6, 0.3*(1-k), -0.05, np.pi, 0, np.pi/2))
-        time.sleep(0.001)
-    rc.set_pose((0.6, 0, -0.05, np.pi, 0, -np.pi/2))
-    
-    for k in np.linspace(0, 1, 100):
-        rc.set_pose((0.6, 0, -0.05*(1-k), np.pi, 0, np.pi/2))
-        time.sleep(0.001)
-    rc.set_pose((0.6, 0, 0, np.pi, 0, -np.pi/2))
     
     rc.set_pose(rc.pose_0_3)
     
-    # rc.reverse_kinetics()
+    rc.reverse_kinetics()
     
-    # for k in np.linspace(0, 1, 100):
-    #     rc.set_pose((0, -0.6, 0.05*k, np.pi, 0, -np.pi/2))
-    #     time.sleep(0.001)
+    for k in np.linspace(0, 1, 100):
+        rc.set_pose((0, -0.6, 0.02*k, np.pi, 0, -np.pi/2))
+        time.sleep(0.001)
         
         
         
