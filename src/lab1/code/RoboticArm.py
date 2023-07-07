@@ -42,7 +42,8 @@ class RoboticArm:
 
     def forward_kinetic(self, theta):
 
-        self.theta = [0] + theta
+        self.theta = [0] + list(theta)
+        print(self.theta)
 
         self.T_i_ip1 = np.zeros((self.joint_num, 4, 4), dtype=np.float32)
 
@@ -88,9 +89,14 @@ if __name__ == '__main__':
 
     robot = RoboticArm()
 
-    theta = [np.pi/4, 0, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4]
+    theta = [np.pi/3, 0, np.pi/3, np.pi/4, np.pi/3, np.pi/6, np.pi/2]
 
     T = robot.forward_kinetic(theta)
 
-    theta = robot.inverse_kinetics(T, theta)
-    print(theta)
+    # theta = robot.inverse_kinetics(T, theta)
+    thetas = robot.tc.calc_theta(T)
+    
+    print(thetas)
+    
+    for theta in thetas:
+        print(robot.forward_kinetic(theta))

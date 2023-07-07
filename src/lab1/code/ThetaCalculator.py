@@ -75,7 +75,7 @@ class ThetaCalculator:
         s6 = az*np.sin(theta_2) + (ax*np.sin(theta_1) -
                                    ay*np.cos(theta_1))*np.cos(theta_2)
 
-        return [norm_rad(np.arcsin(s6)), norm_rad(-np.arcsin(s6))]
+        return [norm_rad(np.arcsin(s6)), norm_rad(np.pi - np.arcsin(s6))]
 
     def calc_theta_7(self, theta_1, theta_2, theta_6):
         """
@@ -153,13 +153,13 @@ class ThetaCalculator:
         ny, sy, ay, py = self.ny, self.sy, self.ay, self.py
         nz, sz, az, pz = self.nz, self.sz, self.az, self.pz
 
-        s345 = -(ax*np.cos(theta_1) + ay*np.sin(theta_1))*np.cos(theta_6) - \
-                (nx*np.cos(theta_1) + ny*np.sin(theta_1))*np.sin(theta_6)*np.cos(theta_7) - \
-                (sx*np.cos(theta_1) + sy*np.sin(theta_1)) * \
-            np.sin(theta_6)*np.sin(theta_7)
+        # s345 = -(ax*np.cos(theta_1) + ay*np.sin(theta_1))*np.cos(theta_6) - \
+        #         (nx*np.cos(theta_1) + ny*np.sin(theta_1))*np.sin(theta_6)*np.cos(theta_7) - \
+        #         (sx*np.cos(theta_1) + sy*np.sin(theta_1))*np.sin(theta_6)*np.sin(theta_7)
+        s345 = (-ax*np.cos(theta_1) - ay*np.sin(theta_1)) / np.cos(theta_6)
         c345 = -(nx*np.cos(theta_1) + ny*np.sin(theta_1))*np.sin(theta_7) + \
                 (sx*np.cos(theta_1) + sy*np.sin(theta_1))*np.cos(theta_7)
-
+                
         return [norm_rad(theta_4 + theta_3 - np.arctan2(s345, c345))]
 
 # if __name__ == "__main__":

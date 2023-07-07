@@ -11,15 +11,24 @@ class RobotController:
 
         self.robot = RoboticArm()
         self.theta = [0, 0, 0, 0, 0, 0, 0]
-        # self.theta = [np.pi/4, 0, np.pi/4, np.pi/4, np.pi/4, np.pi/4, np.pi/4]
-
-        # self.T_W = pos2trans(x=0.650, y=0, z=0.235, alpha=0, beta=0, gamma=0, is_deg=False)
-
-        self.T_0 = self.robot.forward_kinetic(self.theta)
-        self.T_1 = pos2trans(x=0, y=0.3, z=0.15, alpha=np.pi,
-                             beta=0, gamma=-np.pi/2, is_deg=False)
-
-        self.T = self.T_0
+        
+        # 抬起
+        self.pose_0_1 = (-0.3, 0, -0.05, np.pi, 0, np.pi/2)
+        # 对接前状态
+        self.pose_0_2 = (0.6, 0, -0.05, np.pi, 0, -np.pi/2)
+        # 对接状态
+        self.pose_0_3 = (0.6, 0, 0, np.pi, 0, -np.pi/2)
+        
+        # 抬起
+        self.pose_1_1 = (0, -0.6, 0.02, np.pi, 0, -np.pi/2)
+        # 对接前状态
+        self.pose_1_2 = (0.12, 0.4, -0.1, np.pi/2, -np.pi/2, 0)
+        # 对接状态
+        self.pose_1_3 = (0.1, 0.4, -0.1, np.pi/2, -np.pi/2, 0)
+        
+        self.offset = [0, 0, 0, 0, 0, 0, 0]
+        
+        self.reverse = False
 
         """
         Remote API
@@ -54,19 +63,10 @@ class RobotController:
         self.links.append(self.sim.getObject('./R_Link1'))
         self.links.append(self.sim.getObject('./R_Base'))
 
-        self.offset = [0, 0, 0, 0, 0, 0, 0]
-
     def set_init(self):
-        print('-----------------------------------')
-        print('init')
-
         self.theta = [0, 0, 0, 0, 0, 0, 0]
         self.set_theta()
-
-    def set_theta(self):
-        for i in range(7):
-            self.sim.setJointPosition(self.joints[i], self.theta[i] + self.offset[i])
-
+    
     def reverse_list(self):
         self.joints.reverse()
         self.links.reverse()
@@ -75,53 +75,36 @@ class RobotController:
         for i in range(7):
             self.offset[i] += 2 * self.theta[i]
             
-        print('offset', self.offset)
-
-    # def set_state1(self):
-    #     self.reverse()
-    #     T = pos2trans(x=0, y=0.6, z=0, alpha=np.pi,
-    #                   beta=0, gamma=-np.pi/2, is_deg=False)
-
-    #     self.theta = self.robot.inverse_kinetics(T, self.theta)
-
-    #     for i in range(6):
-    #         self.sim.setJointPosition(self.joints[i], self.theta[i])
-    #     self.sim.setJointPosition(self.joints[6], self.theta[6]+np.pi)
-    #     self.reverse()
-
-    def set_state2(self):
+    def set_pose(self, pose: tuple, is_deg=False):
         """
-        ideal: [ 3.51e-01  0.00e+00  8.77e-01 -1.23e+00 -1.92e+00 -3.51e-01  6.12e-17]
+        设置目标位姿
         """
-        print('-----------------------------------')
-        print('state2')
-        # self.reverse_list()
-        T = pos2trans(x=0.1, y=0.4, z=-0.1, alpha=np.pi/2,
-                      beta=-np.pi/2, gamma=0, is_deg=False)
-        self.theta = self.robot.inverse_kinetics(T, self.theta)
+        x, y, z, alpha, beta, gamma = pose
+        T = pos2trans(x, y, z, alpha, beta, gamma, is_deg)
+        self.set_state(T)
+            
+    def set_state(self, T):
+        """
+        设置目标位姿矩阵
+        """
+        if self.reverse:
+            self.reverse_list()
+            T = change_base(T)
         
-        T_new = change_base(T)
-
-        self.set_theta()
-        
-        # self.reverse_list()
-
-    def set_state1(self):
-        
-        print('-----------------------------------')
-        print('state1')
-        
-        
-        T = pos2trans(x=0.6, y=0, z=0, alpha=np.pi,
-                      beta=0, gamma=-np.pi/2, is_deg=False)
-        
-        self.theta = self.robot.inverse_kinetics(T, self.theta)
-        T_new = change_base(T)
-        self.theta = self.robot.inverse_kinetics(T_new, self.theta)
+        # 需要减去offset再比较 
+        self.theta = self.robot.inverse_kinetics(T, [i - j for i, j in zip(self.theta, self.offset)])
         
         self.set_theta()
         
-        
+        if self.reverse:
+            self.reverse_list()
+
+    def set_theta(self):
+        """
+        设置关节角
+        """
+        for i in range(7):
+            self.sim.setJointPosition(self.joints[i], self.theta[i] + self.offset[i])
 
     def reverse_kinetics(self):
         self.get_offset()
@@ -130,7 +113,8 @@ class RobotController:
         for i in range(7):
             self.sim.setObjectParent(self.joints[i], self.links[i], True)
             self.sim.setObjectParent(self.links[i+1], self.joints[i], True)
-
+        self.reverse = not self.reverse
+    
     # def set_traj(self):
 
     #     for i in range(100):
@@ -158,27 +142,62 @@ if __name__ == "__main__":
     np.set_printoptions(precision=2, linewidth=90)
 
     rc = RobotController()
-
-    # rc.set_state2()
+    
     rc.set_init()
     
     rc.reverse_kinetics()
+
+    rc.set_pose((-0.3, 0, 0, np.pi, 0, np.pi/2))
     
-    rc.reverse_list()
-    rc.set_state1()
-    rc.reverse_list()
-
-    rc.reverse_kinetics()
-
-    # rc.reverse_list()
-    rc.set_state2()
-    # rc.reverse_list()
+    for k in np.linspace(0, 1, 100):
+        rc.set_pose((-0.3, 0, -0.05*k, np.pi, 0, np.pi/2))
+        time.sleep(0.001)
+    rc.set_pose((-0.3, 0, -0.05, np.pi, 0, np.pi/2))
+    
+    for k in np.linspace(0, 1, 100):
+        rc.set_pose((-0.3, 0.3*k, -0.05*k, np.pi, 0, np.pi/2))
+        time.sleep(0.001)
+    rc.set_pose((-0.3, 0.3, -0.05, np.pi, 0, np.pi/2))
+    
+    for k in np.linspace(0, 1, 100):
+        rc.set_pose((-0.3+0.9*k, 0.3, -0.05*k, np.pi, 0, np.pi/2))
+        time.sleep(0.001)
+    rc.set_pose((-0.6, 0.3, -0.05, np.pi, 0, np.pi/2))
+    
+    for k in np.linspace(0, 1, 100):
+        rc.set_pose((0.6, 0.3*(1-k), -0.05, np.pi, 0, np.pi/2))
+        time.sleep(0.001)
+    rc.set_pose((0.6, 0, -0.05, np.pi, 0, -np.pi/2))
+    
+    for k in np.linspace(0, 1, 100):
+        rc.set_pose((0.6, 0, -0.05*(1-k), np.pi, 0, np.pi/2))
+        time.sleep(0.001)
+    rc.set_pose((0.6, 0, 0, np.pi, 0, -np.pi/2))
+    
+    rc.set_pose(rc.pose_0_3)
+    
+    # rc.reverse_kinetics()
+    
+    # for k in np.linspace(0, 1, 100):
+    #     rc.set_pose((0, -0.6, 0.05*k, np.pi, 0, -np.pi/2))
+    #     time.sleep(0.001)
+        
+        
+        
+    # rc.set_state(rc.T_state_1_1)
     
     
-    rc.reverse_kinetics()
+    # rc.set_state(rc.T_state_1_2)
+    # time.sleep(1)
+    # rc.set_state(rc.T_state_1_3)
+    # time.sleep(1)
+    
+    
 
-    rc.reverse_list()
-    rc.set_init()
-    rc.reverse_list()
+    # rc.set_state(rc.T_state_2)
 
+    # rc.reverse_kinetics()
+
+    # rc.set_state(rc.T_state_0)
+    
     # rc.shut_down()
