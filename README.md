@@ -28,13 +28,8 @@
       │  │  └─ __init__.py
       │  └─ RoboticArm_sym.py
       ├─ example.py
-      ├─ img
-      │  └─ dh.png
       ├─ main.py
       ├─ Robot.ttt
-      ├─ SpaceRobot.ttt
-      └─ util
-         ├─ ChangeCoordinate
-         └─ __init__.py
+      └─ SpaceRobot.ttt
 
 ```
