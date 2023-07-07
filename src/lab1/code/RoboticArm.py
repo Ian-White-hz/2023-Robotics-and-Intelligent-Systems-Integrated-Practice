@@ -72,12 +72,12 @@ class RoboticArm:
             return closest_row
 
         theta = find_closest_row(results, theta_current)
-        print('-----------------------------------')
-        print('solutions\n', results)
-        print('-----------------------------------')
-        print('theta', theta)
-        print('-----------------------------------')
-        print('theta_current', theta_current)
+        # print('-----------------------------------')
+        # print('solutions\n', results)
+        # print('-----------------------------------')
+        # print('theta', theta)
+        # print('-----------------------------------')
+        # print('theta_current', theta_current)
         return theta
 
 
