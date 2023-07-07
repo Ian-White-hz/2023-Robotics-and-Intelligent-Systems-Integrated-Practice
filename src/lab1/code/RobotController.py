@@ -70,6 +70,7 @@ class RobotController:
     def get_offset(self):
         for i in range(7):
             self.offset[i] += self.sim.getJointPosition(self.joints[i])
+        print('offset', self.offset)
 
     # def set_state1(self):
     #     self.reverse()
